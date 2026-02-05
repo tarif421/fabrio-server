@@ -26,23 +26,21 @@ async function run() {
 
     //  latest product
     app.get("/latestProduct", async (req, res) => {
-      const latestProducts = await productCollection.find({}).toArray();
+      const latestProducts = await productCollection
+        .find({})
+        .limit(6)
+        .toArray();
       res.json(latestProducts);
     });
+    // all product
+    app.get("/allProducts", async (req, res) => {
+      const allProducts = await productCollection.find({}).toArray();
 
+      res.json(allProducts);
+    });
+    // product details
 
-
-// next
-
-
-
-
-
-
-
-
-
-//
+    //
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!",
