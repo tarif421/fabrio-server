@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = 3000;
 app.use(cors());
@@ -23,6 +23,7 @@ async function run() {
 
     const db = client.db("fabrio");
     const productCollection = db.collection("products");
+    const usersCollection = db.collection("users");
 
     //  latest product
     app.get("/latestProduct", async (req, res) => {
@@ -39,6 +40,26 @@ async function run() {
       res.json(allProducts);
     });
     // product details
+    app.get("/productsDetails/:id", async (req, res) => {
+      const details = await productCollection.findOne({
+        _id: new ObjectId(req.params.id),
+      });
+      res.json(details);
+    });
+
+    // users
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+
+      const existingUser = await usersCollection.findOne({ email: user.email });
+
+      if (existingUser) {
+        return res.send({ message: "User already exists" });
+      }
+
+      const result = await usersCollection.insertOne(user);nodemon
+      res.send(result);
+    });
 
     //
     await client.db("admin").command({ ping: 1 });
