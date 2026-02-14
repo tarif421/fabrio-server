@@ -25,6 +25,37 @@ async function run() {
     const productCollection = db.collection("products");
     const usersCollection = db.collection("users");
 
+    // Create default admin if not exists
+    const adminExists = await usersCollection.findOne({
+      email: "admin@fabrio.com",
+    });
+
+    if (!adminExists) {
+      await usersCollection.insertOne({
+        email: "admin@fabrio.com",
+
+        role: "admin",
+        status: "active",
+        createdAt: new Date(),
+      });
+      console.log("Default admin created");
+    }
+    // Manager user
+    const managerExists = await usersCollection.findOne({
+      email: "manager@fabrio.com",
+    });
+
+    if (!managerExists) {
+      await usersCollection.insertOne({
+        email: "manager@fabrio.com",
+
+        role: "manager",
+        status: "active",
+        createdAt: new Date(),
+      });
+      console.log("Default manager created");
+    }
+
     //  latest product
     app.get("/latestProduct", async (req, res) => {
       const latestProducts = await productCollection
