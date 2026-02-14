@@ -78,6 +78,40 @@ async function run() {
 
       res.send(user);
     });
+
+    //  get all user
+    app.get("/users", async (req, res) => {
+      try {
+        const allUsers = await usersCollection.find({}).toArray();
+        res.json(allUsers);
+      } catch (err) {
+        res
+          .status(500)
+          .json({ message: "Failed to fetch users", error: err.message });
+      }
+    });
+    app.patch("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const { role, status } = req.body;
+
+      const updateData = {};
+      if (role) updateData.role = role;
+      if (status) updateData.status = status;
+
+      const result = await usersCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: updateData },
+      );
+
+      if (result.matchedCount === 0) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const updatedUser = await usersCollection.findOne({
+        _id: new ObjectId(id),
+      });
+      res.json(updatedUser);
+    });
     //
     await client.db("admin").command({ ping: 1 });
     console.log(
