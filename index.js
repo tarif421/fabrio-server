@@ -49,18 +49,35 @@ async function run() {
 
     // users
     app.post("/users", async (req, res) => {
-      const user = req.body;
+      const { email, role } = req.body;
 
-      const existingUser = await usersCollection.findOne({ email: user.email });
+      const existingUser = await usersCollection.findOne({ email });
 
       if (existingUser) {
         return res.send({ message: "User already exists" });
       }
 
-      const result = await usersCollection.insertOne(user);nodemon
-      res.send(result);
+      const newUser = {
+        email,
+        role: role || "buyer",
+        status: "pending",
+        createdAt: new Date(),
+      };
+
+      const result = await usersCollection.insertOne(newUser);
+      res.send(newUser);
     });
 
+    app.get("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = await usersCollection.findOne({ email });
+
+      if (!user) {
+        return res.status(404).send({ message: "User not found" });
+      }
+
+      res.send(user);
+    });
     //
     await client.db("admin").command({ ping: 1 });
     console.log(
